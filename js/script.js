@@ -1,24 +1,28 @@
 let map, modal, testoModal;
+let url = "http://localhost/esercizi/es_veicoli/"
 
 
 let comuni = [
     {
         nome: "Fossano",
-        desc: "«pene»",
-        km: "1000",
-        disponibile: "si"
+        modello: "",
+        desc: "",
+        km: "",
+        disponibile: ""
     },
     {
         nome: "Savigliano",
-        desc: "«zdf»",
-        km: "1000",
-        disponibile: "si"
+        modello: "",
+        desc: "",
+        km: "",
+        disponibile: ""
     },
     {
         nome: "Bra",
-        desc: "«sspene»",
-        km: "1200",
-        disponibile: "si"
+        modello: "",
+        desc: "",
+        km: "",
+        disponibile: ""
     }
 ];
 
@@ -30,6 +34,23 @@ window.onload = async function(){
     let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +comuni[0].nome);
     let vet = await busta.json();
     let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
+
+
+    for (let i = 1; i < comuni.length+1; i++)
+    {
+        fetch(url + "server/richiesta.php", {
+                method: "post",
+                body: JSON.stringify(i)
+            }
+        ).then(response => response.json())
+        .then(r  =>{
+            console.log(r)
+
+            console.log(r.modello)
+
+        });
+    }
+
 
     //Definisco una mappa
     map = new ol.Map(
