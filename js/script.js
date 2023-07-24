@@ -1,26 +1,31 @@
 let map, modal, testoModal;
 let url = "http://localhost/esercizi/es_veicoli/"
 
+let aus
+
 
 let comuni = [
     {
-        nome: "Fossano",
+        id: "",
+        posizione: "Fossano",
         modello: "",
-        desc: "",
+        prezzo: "",
         km: "",
         disponibile: ""
     },
     {
-        nome: "Savigliano",
+        id: "",
+        posizione: "Savigliano",
         modello: "",
-        desc: "",
+        prezzo: "",
         km: "",
         disponibile: ""
     },
     {
-        nome: "Bra",
+        id: "",
+        posizione: "Bra",
         modello: "",
-        desc: "",
+        prezzo: "",
         km: "",
         disponibile: ""
     }
@@ -31,7 +36,7 @@ window.onload = async function(){
     modal = document.getElementById("sfondoModal");
     testoModal = document.querySelector("#myModal main");
 
-    let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +comuni[0].nome);
+    let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +comuni[0].posizione);
     let vet = await busta.json();
     let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
 
@@ -44,13 +49,14 @@ window.onload = async function(){
             }
         ).then(response => response.json())
         .then(r  =>{
-            console.log(r)
 
-            console.log(r.modello)
-
+            comuni[i-1].modello = r.modello
+            comuni[i-1].prezzo = r.prezzo
+            comuni[i-1].km = r.km
+            comuni[i-1].disponibile = r.disponibile
+            comuni[i-1].id = r.id
         });
     }
-
 
     //Definisco una mappa
     map = new ol.Map(
@@ -73,7 +79,7 @@ window.onload = async function(){
 
 
     for(let comune of comuni){
-        let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.nome);
+        let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.posizione);
         promise.then(async function(busta){
             let vet = await busta.json();
             let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
@@ -93,9 +99,10 @@ window.onload = async function(){
         */
 
         let marker = map.forEachFeatureAtPixel(evento.pixel, function(feature){return feature});
-        testoModal.innerHTML = marker.dati.nome + "<br>" + marker.dati.desc + "<br>" + marker.dati.km + "<br>" + marker.dati.disponibile;
+        testoModal.innerHTML = "posizione: "+ marker.dati.posizione + "<br><br> modello: " + marker.dati.modello + "<br><br> chilometri: " + marker.dati.km + "<br><br> prezzo: " + marker.dati.prezzo +"€"+ "<br><br> ancora disponibile: " + marker.dati.disponibile;
         modal.style.display = "flex";
-        console.log(marker.desc);
+        aus = marker.dati.id
+
 
     });
 }
@@ -136,5 +143,19 @@ function aggiungiMarker(layer, dati,  lon, lat){
 
 function chiudiModal(){
     modal.style.display = "none";
+}
+
+function acquista() {
+    console.log(aus);
+
+    fetch(url + "server/rimuovi_marker.php", {
+            method: "post",
+            body: JSON.stringify(aus)
+        }
+    ).then(response => response.json())
+        .then(r  =>{
+            console.log(r)
+        });
+
 }
 
