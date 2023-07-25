@@ -12,7 +12,7 @@ let marker
 let comuni = [
     {
         id: "",
-        posizione: "Fossano",
+        posizione: "",
         modello: "",
         prezzo: "",
         km: "",
@@ -20,7 +20,7 @@ let comuni = [
     },
     {
         id: "",
-        posizione: "Savigliano",
+        posizione: "",
         modello: "",
         prezzo: "",
         km: "",
@@ -28,7 +28,7 @@ let comuni = [
     },
     {
         id: "",
-        posizione: "Bra",
+        posizione: "",
         modello: "",
         prezzo: "",
         km: "",
@@ -36,34 +36,35 @@ let comuni = [
     }
 ];
 
-const vet = []
 
 window.onload = async function(){
 
     modal = document.getElementById("sfondoModal");
     testoModal = document.querySelector("#myModal main");
 
+    for (let i = 1; i < comuni.length + 1; i++) {
+        let response = await fetch(url + "server/richiesta.php", {
+            method: "post",
+            body: JSON.stringify(i),
+        });
+
+        if (response.ok) {
+            let r = await response.json();
+            comuni[i - 1].modello = r.modello;
+            comuni[i - 1].prezzo = r.prezzo;
+            comuni[i - 1].km = r.km;
+            comuni[i - 1].disponibile = r.disponibile;
+            comuni[i - 1].id = r.id;
+            comuni[i - 1].posizione = r.posizione;
+        } else {
+            // Gestire eventuali errori in caso di fallimento della richiesta
+            console.error("Errore nella richiesta per l'elemento " + i);
+        }
+    }
+    console.log(comuni[0].id)
     let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +comuni[0].posizione);
     let vet = await busta.json();
     let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
-
-
-    for (let i = 1; i < comuni.length+1; i++)
-    {
-        fetch(url + "server/richiesta.php", {
-                method: "post",
-                body: JSON.stringify(i)
-            }
-        ).then(response => response.json())
-        .then(r  =>{
-
-            comuni[i-1].modello = r.modello
-            comuni[i-1].prezzo = r.prezzo
-            comuni[i-1].km = r.km
-            comuni[i-1].disponibile = r.disponibile
-            comuni[i-1].id = r.id
-        });
-    }
 
     //Definisco una mappa
     map = new ol.Map(
@@ -149,9 +150,6 @@ function aggiungiMarker(layer, dati,  lon, lat,i){
     dati.lon = lon;
     dati.lat = lat;
     marker.dati = dati;
-
-    vet[i] = marker
-    console.log(vet)
 
     //Inserisce il marker nel layer passato per parametro
     layer.getSource().addFeature(marker);
