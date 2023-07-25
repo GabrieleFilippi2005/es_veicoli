@@ -2,6 +2,11 @@ let map, modal, testoModal;
 let url = "http://localhost/esercizi/es_veicoli/"
 
 let aus
+let layer1
+
+let punto
+let marker
+
 
 
 let comuni = [
@@ -30,6 +35,8 @@ let comuni = [
         disponibile: ""
     }
 ];
+
+const vet = []
 
 window.onload = async function(){
 
@@ -75,19 +82,9 @@ window.onload = async function(){
         });
 
     //Path rispetto alla cartella principale del progetto (non come se fossi il js)
-    let layer1 = aggiungiLayer(map, "img/marker.png");
+    layer1 = aggiungiLayer(map, "img/marker.png");
 
-
-    for(let comune of comuni){
-        let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.posizione);
-        promise.then(async function(busta){
-            let vet = await busta.json();
-            let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
-            aggiungiMarker(layer1, comune, coord[0], coord[1]);
-            //DOM1 RICHIAMATO QUANDO VIENE MANDATO IN ESECUZIONE THEN
-        });
-        //DOM2 FUORI DAL THEN
-    }
+    aggiungi(layer1)
 
     //Gestione del click
     map.on("click", function (evento){
@@ -107,6 +104,21 @@ window.onload = async function(){
     });
 }
 
+function aggiungi(layer1) {
+    let i = 0
+    for(let comune of comuni){
+        let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.posizione);
+        promise.then(async function(busta){
+            let vet = await busta.json();
+            let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
+            if (comune.disponibile === "si")
+                aggiungiMarker(layer1, comune, coord[0], coord[1],i);
+            //DOM1 RICHIAMATO QUANDO VIENE MANDATO IN ESECUZIONE THEN
+        });
+        //DOM2 FUORI DAL THEN
+        i++
+    }
+}
 
 function aggiungiLayer(mappa, pathImg){
     let layer = new ol.layer.Vector({
@@ -129,13 +141,17 @@ function aggiungiLayer(mappa, pathImg){
 }
 
 
-function aggiungiMarker(layer, dati,  lon, lat){
-    let punto = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
-    let marker = new ol.Feature(punto);
+
+function aggiungiMarker(layer, dati,  lon, lat,i){
+    punto = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
+    marker = new ol.Feature(punto);
 
     dati.lon = lon;
     dati.lat = lat;
     marker.dati = dati;
+
+    vet[i] = marker
+    console.log(vet)
 
     //Inserisce il marker nel layer passato per parametro
     layer.getSource().addFeature(marker);
@@ -147,6 +163,7 @@ function chiudiModal(){
 
 function acquista() {
     console.log(aus);
+    comuni[aus-1].disponibile = "no"
 
     fetch(url + "server/rimuovi_marker.php", {
             method: "post",
@@ -154,8 +171,22 @@ function acquista() {
         }
     ).then(response => response.json())
         .then(r  =>{
-            console.log(r)
+            let comune = comuni[r.id-1]
+            console.log(r.id)
+            console.log(comune)
+               let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.posizione);
+                promise.then(async function(busta){
+                    let vet = await busta.json();
+                    rimuoviMarker();
+                    //DOM1 RICHIAMATO QUANDO VIENE MANDATO IN ESECUZIONE THEN
+                });
+                //DOM2 FUORI DAL THEN
+
         });
 
+}
+
+function rimuoviMarker(layer, dati,  lon, lat){
+    location.reload()
 }
 
