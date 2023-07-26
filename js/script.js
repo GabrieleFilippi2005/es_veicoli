@@ -3,46 +3,51 @@ let url = "http://localhost/esercizi/es_veicoli/"
 
 let aus
 let layer1
-
+let maxID
 let punto
 let marker
 
-
-
-let comuni = [
-    {
-        id: "",
-        posizione: "",
-        modello: "",
-        prezzo: "",
-        km: "",
-        disponibile: ""
-    },
-    {
-        id: "",
-        posizione: "",
-        modello: "",
-        prezzo: "",
-        km: "",
-        disponibile: ""
-    },
-    {
-        id: "",
-        posizione: "",
-        modello: "",
-        prezzo: "",
-        km: "",
-        disponibile: ""
-    }
-];
+let comuni = [{
+    id: "",
+    posizione: "Foggia",
+    modello: "",
+    prezzo: "",
+    km: "",
+    disponibile: "si"
+}]
 
 
 window.onload = async function(){
 
+    let response2 = await fetch(url + "server/get_maxid.php", {
+        method: "post",
+    });
+
+    if (response2.ok) {
+        let r = await response2.json();
+        maxID = r
+    } else {
+        // Gestire eventuali errori in caso di fallimento della richiesta
+        console.error("Errore");
+    }
+    console.log(maxID)
+    for (let i = 0; i<maxID; i++)
+    {
+        comuni.push({
+            id: "",
+            posizione: "",
+            modello: "",
+            prezzo: "",
+            km: "",
+            disponibile: ""
+        })
+    }
+
+
     modal = document.getElementById("sfondoModal");
     testoModal = document.querySelector("#myModal main");
 
-    for (let i = 1; i < comuni.length + 1; i++) {
+    for (let i = 1; i < comuni.length; i++) {
         let response = await fetch(url + "server/richiesta.php", {
             method: "post",
             body: JSON.stringify(i),
@@ -58,10 +63,10 @@ window.onload = async function(){
             comuni[i - 1].posizione = r.posizione;
         } else {
             // Gestire eventuali errori in caso di fallimento della richiesta
-            console.error("Errore nella richiesta per l'elemento " + i);
+            console.error("Errore");
         }
     }
-    console.log(comuni[0].id)
+
     let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +comuni[0].posizione);
     let vet = await busta.json();
     let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
@@ -160,7 +165,6 @@ function chiudiModal(){
 }
 
 function acquista() {
-    console.log(aus);
     comuni[aus-1].disponibile = "no"
 
     fetch(url + "server/rimuovi_marker.php", {
