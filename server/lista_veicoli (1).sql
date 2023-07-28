@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 24, 2023 at 11:52 AM
+-- Generation Time: Jul 28, 2023 at 03:25 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -30,19 +30,25 @@ SET time_zone = "+00:00";
 CREATE TABLE `lista_veicoli` (
   `id` int(10) NOT NULL,
   `modello` varchar(50) NOT NULL,
-  `prezzo` int(50) NOT NULL,
-  `km` int(50) NOT NULL,
-  `disponibile` varchar(2) NOT NULL
+  `prezzo` int(10) NOT NULL,
+  `km` int(10) NOT NULL,
+  `disponibile` varchar(2) NOT NULL,
+  `posizione` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `lista_veicoli`
 --
 
-INSERT INTO `lista_veicoli` (`id`, `modello`, `prezzo`, `km`, `disponibile`) VALUES
-(1, 'opel corsa', 16699, 10856, 'si'),
-(2, 'fiat 500', 12299, 33845, 'si'),
-(3, 'peugeot 3008', 22346, 52311, 'si');
+INSERT INTO `lista_veicoli` (`id`, `modello`, `prezzo`, `km`, `disponibile`, `posizione`) VALUES
+(1, 'fiat 500', 5000, 100000, 'si', 'fossano'),
+(2, 'fiat 500', 5000, 100000, 'si', 'bra'),
+(3, 'opel corsa', 12999, 80000, 'si', 'savigliano'),
+(4, 'tesla model y', 129999, 50000, 'si', 'foggia'),
+(5, 'peugeot-3008', 8999, 100000, 'si', 'palermo'),
+(6, 'panda 4x4', 6000, 140000, 'si', 'saluzzo'),
+(7, 'panda 4x4', 6999, 100000, 'si', 'cuneo'),
+(8, 'audi a4', 30000, 80000, 'si', 'alba');
 
 --
 -- Indexes for dumped tables
@@ -53,6 +59,16 @@ INSERT INTO `lista_veicoli` (`id`, `modello`, `prezzo`, `km`, `disponibile`) VAL
 --
 ALTER TABLE `lista_veicoli`
   ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `lista_veicoli`
+--
+ALTER TABLE `lista_veicoli`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
