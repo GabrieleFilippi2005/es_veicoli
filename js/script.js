@@ -7,9 +7,10 @@ let maxID
 let punto
 let marker
 
-let comuni = [{
+
+let veicoli = [{
     id: "",
-    posizione: "Foggia",
+    posizione: "",
     modello: "",
     prezzo: "",
     km: "",
@@ -33,7 +34,7 @@ window.onload = async function(){
     console.log(maxID)
     for (let i = 0; i<maxID; i++)
     {
-        comuni.push({
+        veicoli.push({
             id: "",
             posizione: "",
             modello: "",
@@ -47,7 +48,7 @@ window.onload = async function(){
     modal = document.getElementById("sfondoModal");
     testoModal = document.querySelector("#myModal main");
 
-    for (let i = 1; i < comuni.length; i++) {
+    for (let i = 1; i < veicoli.length; i++) {
         let response = await fetch(url + "server/richiesta.php", {
             method: "post",
             body: JSON.stringify(i),
@@ -55,19 +56,19 @@ window.onload = async function(){
 
         if (response.ok) {
             let r = await response.json();
-            comuni[i - 1].modello = r.modello;
-            comuni[i - 1].prezzo = r.prezzo;
-            comuni[i - 1].km = r.km;
-            comuni[i - 1].disponibile = r.disponibile;
-            comuni[i - 1].id = r.id;
-            comuni[i - 1].posizione = r.posizione;
+            veicoli[i - 1].modello = r.modello;
+            veicoli[i - 1].prezzo = r.prezzo;
+            veicoli[i - 1].km = r.km;
+            veicoli[i - 1].disponibile = r.disponibile;
+            veicoli[i - 1].id = r.id;
+            veicoli[i - 1].posizione = r.posizione;
         } else {
             // Gestire eventuali errori in caso di fallimento della richiesta
             console.error("Errore");
         }
     }
 
-    let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +comuni[0].posizione);
+    let busta = await fetch("https://nominatim.openstreetmap.org/search?format=json&city=" +veicoli[0].posizione);
     let vet = await busta.json();
     let coord = [parseFloat(vet[0].lon), parseFloat(vet[0].lat)];
 
@@ -88,31 +89,22 @@ window.onload = async function(){
         });
 
     //Path rispetto alla cartella principale del progetto (non come se fossi il js)
-    layer1 = aggiungiLayer(map, "img/marker.png");
+    layer1 = aggiungiLayer(map, "img/auto.png");
 
     aggiungi(layer1)
 
     //Gestione del click
     map.on("click", function (evento){
-        /*
-            forEachFeatureAtPixel -> Lavora in modo simile a comuni.forEach, perciò processa tutte
-            le feature presenti la mappa e filtra quelle cliccate
-
-            evento.pixel -> pixel cliccati con il mouse
-        */
-
         let marker = map.forEachFeatureAtPixel(evento.pixel, function(feature){return feature});
         testoModal.innerHTML = "posizione: "+ marker.dati.posizione + "<br><br> modello: " + marker.dati.modello + "<br><br> chilometri: " + marker.dati.km + "<br><br> prezzo: " + marker.dati.prezzo +"€"+ "<br><br> ancora disponibile: " + marker.dati.disponibile;
         modal.style.display = "flex";
         aus = marker.dati.id
-
-
     });
 }
 
 function aggiungi(layer1) {
     let i = 0
-    for(let comune of comuni){
+    for(let comune of veicoli){
         let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.posizione);
         promise.then(async function(busta){
             let vet = await busta.json();
@@ -155,7 +147,6 @@ function aggiungiMarker(layer, dati,  lon, lat,i){
     dati.lon = lon;
     dati.lat = lat;
     marker.dati = dati;
-
     //Inserisce il marker nel layer passato per parametro
     layer.getSource().addFeature(marker);
 }
@@ -165,7 +156,7 @@ function chiudiModal(){
 }
 
 function acquista() {
-    comuni[aus-1].disponibile = "no"
+    veicoli[aus-1].disponibile = "no"
 
     fetch(url + "server/rimuovi_marker.php", {
             method: "post",
@@ -173,7 +164,7 @@ function acquista() {
         }
     ).then(response => response.json())
         .then(r  =>{
-            let comune = comuni[r.id-1]
+            let comune = veicoli[r.id-1]
             console.log(r.id)
             console.log(comune)
                let promise = fetch("https://nominatim.openstreetmap.org/search?format=json&city="+comune.posizione);
@@ -192,3 +183,31 @@ function rimuoviMarker(layer, dati,  lon, lat){
     location.reload()
 }
 
+
+async function inserisci() {
+    let modello = document.getElementById("input_modello")
+    let prezzo = document.getElementById("input_prezzo")
+    let km = document.getElementById("input_km")
+    let posizione = document.getElementById("input_posizione")
+
+    let nuova_auto = [{
+        posizione: posizione.value,
+        modello: modello.value,
+        prezzo: prezzo.value,
+        km: km.value,
+    }]
+
+    console.log(nuova_auto)
+    let response = await fetch(url + "server/inserisci_auto.php", {
+        method: "post",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(nuova_auto),
+    });
+    if (response.ok) {
+        console.log("inserimento avvenuto con successo")
+    } else {
+        console.error("Errore");
+    }
+}
