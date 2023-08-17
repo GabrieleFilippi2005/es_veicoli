@@ -3,6 +3,13 @@ body{
     min-height: 93vh;
 }
 
+.centrato{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
 #titolo{
     display: flex;
     justify-content: center;
@@ -53,4 +60,9 @@ footer{
 #myModal > header{
     font-size: 15pt;
     font-weight: bold;
+}
+
+#marker:hover{
+    height: 10%;
+    width: 10%;
 }

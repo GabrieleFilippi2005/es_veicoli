@@ -23,6 +23,7 @@ if($ris && $conn->affected_rows > 0){
     echo "Errore nella query: ".$conn->error;
 }
 
+
 // Chiudo la connessione al database
 $conn->close();
 
